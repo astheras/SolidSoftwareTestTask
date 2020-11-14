@@ -8,15 +8,6 @@ Color generateRandomColor() {
   return Color((_random.nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
 }
 
-//random range
-double randomRange(double min, double max, [bool isInt = true]) {
-  final _random = new Random();
-  if (isInt)
-    return min + _random.nextInt(max.toInt() - min.toInt());
-  else
-    return min + _random.nextDouble() * max;
-}
-
 Color darken(Color color, [double amount = .1]) {
   assert(amount >= 0 && amount <= 1);
 

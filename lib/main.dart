@@ -77,9 +77,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      /* appBar: AppBar(
         title: Text(widget.title),
-      ),
+      ),*/
       body: _render(),
     );
   }
@@ -133,8 +133,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       child: GestureDetector(
         child: Container(
           decoration: BoxDecoration(
-              color: _mode == 0 || animation == null ? null : animation.value,
-              gradient: _setBoxGradient()),
+            color: _mode == 0 || animation == null ? null : animation.value,
+            gradient: _setBoxGradient(),
+          ),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -160,10 +161,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     if (_mode == 1) {
       // random color
       _setColor();
-    } else if (_mode == 2) {
-      _setLinearGradient();
-    } else if (_mode == 3) {
-      _setSweepGradient();
+    } else if (_mode == 2 || _mode == 3) {
+      _setGradient();
     }
   }
 
@@ -192,49 +191,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     _controller.forward();
   }
 
-  _setLinearGradient() {
-    _controller.stop();
-    _controller2.stop();
-    colorEnd = generateRandomColor();
-
-    animation = ColorTween(
-      begin: colorBegin,
-      end: colorEnd,
-    ).animate(_controller)
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          colorBegin = colorEnd;
-          //_controller.reset();
-        }
-      })
-      ..addListener(() {
-        setState(() {});
-      });
-    //second color
-    colorEnd2 = generateRandomColor();
-
-    animation2 = ColorTween(
-      begin: colorBegin2,
-      end: colorEnd2,
-    ).animate(_controller)
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          colorBegin2 = colorEnd2;
-        }
-      })
-      ..addListener(() {
-        setState(() {});
-      });
-
-    //_controller.forward()();
-    if (colorBegin != null) _controller.reset();
-    if (colorBegin2 != null) _controller2.reset();
-
-    _controller.forward();
-    _controller2.forward();
-  }
-
-  _setSweepGradient() {
+  // set gradient animation
+  _setGradient() {
     _controller.stop();
     _controller2.stop();
     colorEnd = generateRandomColor();
@@ -312,7 +270,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     });
   }
 
-  // get color info by selected mode
+  // message in the middle
   String _setMessage() {
     String message;
     String end;
