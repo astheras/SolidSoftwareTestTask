@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samykov_solid_test_task/widgets/button.dart';
-import 'package:samykov_solid_test_task/widgets/utils/tools.dart';
+
+import 'utils/tools.dart';
 
 void main() {
   runApp(MyApp());
@@ -46,21 +47,29 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   int _mode = 0;
-  BoxDecoration _decoration;
-  Color colorBegin;
+  Color colorBegin = Colors.white;
   Color colorEnd;
+
+  Color colorBegin2 = Colors.white;
+  Color colorEnd2;
 
   // This widget is the root of your application.
   AnimationController _controller;
+  AnimationController _controller2;
   Animation<Color> animation;
+  Animation<Color> animation2;
 
   // constructor
   _MyHomePageState() {
     _controller = AnimationController(
-      duration: Duration(seconds: 3),
+      duration: Duration(seconds: 1),
+      vsync: this,
+    );
+
+    _controller2 = AnimationController(
+      duration: Duration(seconds: 1),
       vsync: this,
     );
   }
@@ -86,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage>
           child: Row(
             children: [
               Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   // just random color
                   Button(
@@ -123,7 +132,9 @@ class _MyHomePageState extends State<MyHomePage>
     return Positioned(
       child: GestureDetector(
         child: Container(
-          decoration: _decoration,
+          decoration: BoxDecoration(
+              color: _mode == 0 || animation == null ? null : animation.value,
+              gradient: _setBoxGradient()),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -144,40 +155,154 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  // generate and set color
   _setGeneratedColor() {
-    _decoration = BoxDecoration(color: animation.value);
-
     if (_mode == 1) {
       // random color
       _setColor();
     } else if (_mode == 2) {
-      //int count = randomRange(2, 5)
+      _setLinearGradient();
+    } else if (_mode == 3) {
+      _setSweepGradient();
     }
   }
 
   // set main color
   _setColor() {
-    //return _mode == 1 ? generateRandomColor() : null;
+    _controller.stop();
+    _controller2.stop();
     colorEnd = generateRandomColor();
     animation = ColorTween(
       begin: colorBegin,
       end: colorEnd,
     ).animate(_controller)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          colorBegin = colorEnd;
+          //_controller.reset();
+        }
+      })
       ..addListener(() {
         setState(() {});
       });
+
+    //_controller.forward()();
+    if (colorBegin != null) _controller.reset();
+
     _controller.forward();
   }
 
+  _setLinearGradient() {
+    _controller.stop();
+    _controller2.stop();
+    colorEnd = generateRandomColor();
+
+    animation = ColorTween(
+      begin: colorBegin,
+      end: colorEnd,
+    ).animate(_controller)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          colorBegin = colorEnd;
+          //_controller.reset();
+        }
+      })
+      ..addListener(() {
+        setState(() {});
+      });
+    //second color
+    colorEnd2 = generateRandomColor();
+
+    animation2 = ColorTween(
+      begin: colorBegin2,
+      end: colorEnd2,
+    ).animate(_controller)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          colorBegin2 = colorEnd2;
+        }
+      })
+      ..addListener(() {
+        setState(() {});
+      });
+
+    //_controller.forward()();
+    if (colorBegin != null) _controller.reset();
+    if (colorBegin2 != null) _controller2.reset();
+
+    _controller.forward();
+    _controller2.forward();
+  }
+
+  _setSweepGradient() {
+    _controller.stop();
+    _controller2.stop();
+    colorEnd = generateRandomColor();
+
+    animation = ColorTween(
+      begin: colorBegin,
+      end: colorEnd,
+    ).animate(_controller)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          colorBegin = colorEnd;
+          //_controller.reset();
+        }
+      })
+      ..addListener(() {
+        setState(() {});
+      });
+    //second color
+    colorEnd2 = generateRandomColor();
+
+    animation2 = ColorTween(
+      begin: colorBegin2,
+      end: colorEnd2,
+    ).animate(_controller)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          colorBegin2 = colorEnd2;
+        }
+      })
+      ..addListener(() {
+        setState(() {});
+      });
+
+    //_controller.forward()();
+    if (colorBegin != null) _controller.reset();
+    if (colorBegin2 != null) _controller2.reset();
+
+    _controller.forward();
+    _controller2.forward();
+  }
+
   // set gradient value
-  _setGradient() {
-/*LinearGradient(
+  _setBoxGradient() {
+    if (_mode == 2 && animation != null && animation2 != null) {
+      return LinearGradient(
         colors: [
-          Theme.of(context).floatingActionButtonTheme.backgroundColor,
-          Theme.of(context).floatingActionButtonTheme.foregroundColor
+          animation.value,
+          animation2.value,
         ],
-      ),
-    );**/
+      );
+    } else if (_mode == 3 && animation != null && animation2 != null) {
+      Color color1 = darken(animation.value);
+      Color color3 = lighten(animation.value);
+      Color color5 = lighten(animation2.value);
+      //color3.value.value += 100;
+
+      return RadialGradient(
+        colors: [
+          color1,
+          animation.value,
+          color3,
+          animation2.value,
+          color5,
+        ],
+        stops: [0.8, 0.96, 0.74, 0.22, 0.85],
+      );
+    } else
+      return null;
   }
 
   // set color mode
@@ -191,10 +316,15 @@ class _MyHomePageState extends State<MyHomePage>
   String _setMessage() {
     String message;
     String end;
-    if (_mode == 0) message = 'nothing';
-    if (_mode == 1)
+    if (_mode == 0) {
+      message = 'nothing';
+    } else if (_mode == 1) {
       message = 'just random color';
-    else if (_mode == 2) message = 'gradient color';
+    } else if (_mode == 2) {
+      message = 'linear gradient color';
+    } else if (_mode == 3) {
+      message = 'radial gradient color';
+    }
 
     end = _mode == 0 ? '' : 'mode';
 
