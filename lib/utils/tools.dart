@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+//случайный диапазон
+double randomRange(double min, double max, [bool isInt = true]) {
+  final _random = new Random();
+  if (isInt)
+    return min + _random.nextInt(max.toInt() - min.toInt());
+  else
+    return min + _random.nextDouble() * max;
+}
+
 //generate random color
 Color generateRandomColor() {
-  final _random = new Random();
+  int maxValue;
+  int color;
+  try {
+    maxValue = int.parse('FFFFFF', radix: 16);
+    color = randomRange(0, maxValue.toDouble(), true).toInt();
+  } catch (error) {
+    color = 0;
+  }
 
-  return Color((_random.nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
+  return Color(color).withOpacity(1.0);
 }
 
 Color darken(Color color, [double amount = .1]) {
